@@ -1,4 +1,6 @@
 RPA Protheus - Automação de Cadastro de Históricos de Cobrança 🤖
+
+
 📋 Contexto e Problema (O Cenário Manual)
 Antes desta automação, o processo de registrar o histórico de cobrança e negociação dos títulos era 100% manual.
 
