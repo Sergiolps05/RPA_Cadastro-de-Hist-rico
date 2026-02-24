@@ -1,5 +1,3 @@
-#pip install pandas openpyxl pyperclip opencv-python
-
 import pyautogui as pa
 import time
 import pandas as pd
@@ -11,13 +9,13 @@ import requests
 import io      
 import random  
 import time as tm 
-13
+
 
 # Configurações globais de segurança e pausa
 pa.FAILSAFE = False
 pa.PAUSE =  2.2                         # --- DEFINIÇÃO DE CAMINHOS ---
 # 1. Arquiv.o FONTE (Onde os usuários inserem dados)
-URL_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTV4GWTD4qpCEnZlaKJtxqHkg3KB3fpITO-tzb54WkeWJqhRWM-jDnQwcx8W5KDyEPAiL7W3XI2mD83/pub?output=csv'
+URL_BASE = 'https://docs.google.com/spreadsheets/d/e/URLDOGOOGLE'
 
 # 2. Encontra o caminho completo da pasta ONDE O SCRIPT ESTÁ ('ProdApp')
 caminho_script = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -354,5 +352,6 @@ except requests.exceptions.ConnectionError as errc: # <-- ADICIONE ESTE BLOCO
 except Exception as e:
     print(f"\nERRO INESPERADO: O script foi interrompido. Detalhe: {e}")
     sys.exit()
+
 
 
