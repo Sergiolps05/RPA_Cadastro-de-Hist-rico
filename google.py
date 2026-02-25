@@ -13,9 +13,11 @@ import time as tm
 
 # Configurações globais de segurança e pausa
 pa.FAILSAFE = False
-pa.PAUSE =  2.2                         # --- DEFINIÇÃO DE CAMINHOS ---
-# 1. Arquiv.o FONTE (Onde os usuários inserem dados)
-URL_BASE = 'https://docs.google.com/spreadsheets/d/e/URLDOGOOGLE'
+pa.PAUSE = 1.5                        
+
+# --- DEFINIÇÃO DE CAMINHOS ---
+# 1. Arquivo FONTE (Onde os usuários inserem dados)
+URL_BASE = 'https://docs.google.com/spreadsheets/d/e/URLDAPLANILHA'
 
 # 2. Encontra o caminho completo da pasta ONDE O SCRIPT ESTÁ ('ProdApp')
 caminho_script = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -23,7 +25,7 @@ caminho_script = os.path.dirname(os.path.abspath(sys.argv[0]))
 # 3. Define o caminho COMPLETO para o arquivo FONTE e FILA
 CAMINHO_FILA_LOCAL = os.path.join(caminho_script, 'fila_automacao.xlsx')
 
-# 4. Caminho de Imagens (Mantido)
+# 4. Caminho de Imagens 
 caminho_base_py = os.path.dirname(caminho_script)
 ASSETS_PATH = os.path.join(caminho_base_py, 'Prints')
 
@@ -32,7 +34,7 @@ print(f"DEBUG: Fila de Controle: {CAMINHO_FILA_LOCAL}")
 print(f"DEBUG: O script procurará imagens em: {ASSETS_PATH}")
 
 #########################################
-#Função para clique seguro (mantida)
+#Função para clique no botao do print
 def click_on_image(image_path, confidence=0.90, action_name="Elemento", num_clicks=1,grayscale=False,region=None):
     """ Busca imagem (mantido para evitar quebras) """
     try:
@@ -64,7 +66,7 @@ def wait_for_image(image_path, timeout=30, confidence=0.9, action_name="Elemento
         full_path = os.path.join(ASSETS_PATH, image_path)
         
         try:
-            # Tenta localizar a imagem (sem clicar)
+            # Tenta localizar a imagem 
             localizacao = pa.locateOnScreen(full_path, confidence=confidence, grayscale=grayscale, region=region)
             
             if localizacao is not None:
@@ -99,7 +101,7 @@ try:
 
     # 3. LÊ O CONTEÚDO CSV ONLINE
     data = response.content.decode('utf-8')
-    dados_fonte = pd.read_csv( # <--            ra read_csv
+    dados_fonte = pd.read_csv( # <- read_csv
         io.StringIO(data),
         dtype=str # Lê tudo como string primeiro para segurança
     ).fillna('')
@@ -112,7 +114,7 @@ try:
         print("Verifique o cabeçalho em dados_automacao.xlsx")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         sys.exit() # Para o script aqui se a coluna chave estiver faltando
-    # ### FIM DO DIAGNÓSTICO FONTE ###13
+    # ### FIM DO DIAGNÓSTICO FONTE ###
 
     # 2. LÊ O ARQUIVO DE CONTROLE (FILA)
     if os.path.exists(CAMINHO_FILA_LOCAL):
@@ -125,7 +127,7 @@ try:
             print("ERRO CRÍTICO: Coluna 'ChaveUnica' NÃO encontrada no arquivo de CONTROLE!")
             print("Verifique o cabeçalho em fila_automacao.xlsx")
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            # Não paramos aqui, pois o controle pode ser recriado
+            
         # ### FIM DO DIAGNÓSTICO CONTROLE ###
     else:           # Se a Fila não existe, usa a Fonte como base para a criação
         dados_controle = dados_fonte.copy()
@@ -143,16 +145,16 @@ try:
         dados_controle[['ChaveUnica', 'PROCESSADO']], 
         on='ChaveUnica', 
         how='left' 
-        # Suffixes removidos pois não há conflito na coluna PROCESSADO
     )
     
-    # 5. PREPARA O DATAFRAME FINAL            # Preenche os registros novos (que estão como NaN) com 'NAO'
+    # 5. PREPARA O DATAFRAME FINAL   
+    #Preenche os registros novos (que estão como NaN) com 'NAO'
     dados_sincronizados['PROCESSADO'] = dados_sincronizados['PROCESSADO'].fillna('NAO')
 
     # Define o DataFrame que será usado no loop
     dados = dados_sincronizados.copy()
     
-    # 6. FILTRA: Apenas linhas onde PROCESSADO NÃO é 'SIM'
+    # 6. FILTRA: Apenas linhas onde PROCESSADO não é 'SIM'
     if 'PROCESSADO' in dados.columns:
         dados_a_processar = dados[dados['PROCESSADO'].str.upper() != 'SIM'].copy()
     else:
@@ -161,7 +163,7 @@ try:
 
     print(f"Iniciando automação. {len(dados_a_processar)} grupos econômicos encontrados para processar.")
 
-    # Loop principal que itera sobre cada linha do DataFrame FILTRADO
+    # Loop principal
     for indice, linha in dados_a_processar.iterrows(): # Usamos o índice original do dados_a_processar
         # --- LEITURA E PREPARAÇÃO DOS DADOS ---
         chave_unica_do_registro = str(linha['ChaveUnica']).strip()
@@ -182,26 +184,22 @@ try:
 
         # --- Etapa 1: Inserir Grupo Econômico e Carteira ---
     
-        click_on_image('botao_incluiratendimento.png', action_name='Botão Incluir Atendimento') # RESTAURADO
+        click_on_image('botao_incluiratendimento.png', action_name='Botão Incluir Atendimento') ESTAURADO
         pa.write(grupo_economico)
         pa.press("tab", presses=4)
         pa.write(carteira)
         pa.press("enter")
         
         wait_for_image('botao_confirmar.png', timeout=300002980, action_name="Botão Confirmar (Espera Carga)")
-        
-        #time.sleep(30)   
 
         # --- Etapa 2: Loop INTERNO para filtrar cada título do grupo ---
-        click_on_image('botao_filtrarhistorico.png', action_name='Botão Filtar Histórico') # RESTAURADO
-        pa.click(x= 709, y= 480) #clica em num de títul
+        click_on_image('botao_filtrarhistorico.png', action_name='Botão Filtar Histórico') 
+        pa.click(x= 709, y= 480) #Clica no filtro Num.titulos
         pa.click(x= 709, y= 480)
-        click_on_image('botao_aplicarfiltros.png',action_name="Botao Aplicar Filtros") # RESTAURADO
+        click_on_image('botao_aplicarfiltros.png',action_name="Botao Aplicar Filtros")
+        pa.press('delete') #Apaga os registros anteriores, ERP salva a ultima pesquisa
 
-        ############################# limpeza 23 itens
-        pa.press('delete')
-
-        for _ in range(22):
+        for _ in range(22): 
             pa.press('delete',_pause=False)
             time.sleep(1)
             pa.press('tab',_pause=False)
@@ -216,33 +214,25 @@ try:
             time.sleep(0.9)
 
         pa.click(x= 1132, y= 727) # Confirmar
-        
-
 
         # --- Etapa 3: Marcar, Alterar e Inserir Histórico ---
-        click_on_image('botao_marcartodos.png',action_name="Botão Marcar Todos") # RESTAURADO
+        click_on_image('botao_marcartodos.png',action_name="Botão Marcar Todos") 
         
         #Confirmar ta com problema
-        #click_on_image('botao_confirmar.png',action_name="Botão Confirmar") # RESTAURADO
-        pa.moveTo(x= 1866, y= 244)
-        pa.click(x= 1866, y= 244)
-
+        click_on_image('botao_confirmar.png',action_name="Botão Confirmar") 
+        
         pa.moveTo(x= 1184, y= 649)
-        pa.click(x= 1184, y= 649) # Sair da pagina (Coordenada Mantida)
+        pa.click(x= 1184, y= 649) # Sair da pagina
         pa.click(x= 1184, y= 649)
-        click_on_image('botao_marcartodos.png',action_name="Botão Marcar Todos") # RESTAURADO
+        
+        click_on_image('botao_marcartodos.png',action_name="Botão Marcar Todos") 
+        
         pa.moveTo(x= 1856, y= 398)
         pa.click(x= 1856, y= 398) # Alterar (Coordenada Mantida)
         
         wait_for_image('botao_caixastatus.png',timeout=15,action_name="Botao pra entrar no status")
-#######################################################################
+#######################################################################      
         # Inserir Tipo
-        #pa.moveTo(x= 899, y= 387)
-        #pa.click(x= 899, y= 387)
-        #pa.write(tipo, interval=0.2)
-        #pa.press("tab")
-        
-        # Inserir Tipo (SOLUÇÃO DE NAVEGAÇÃO PARA BUG DO PROTHEUS)
         pa.moveTo(x= 899, y= 387)
         pa.click(x= 899, y= 387)
 
@@ -250,34 +240,25 @@ try:
         if tipo == "22":
             pa.write("22") # Digita o primeiro dígito
              # Espera a lista filtrar
-            
-            # ATENÇÃO: AJUSTE O NÚMERO DE 'presses' (contagem de setas para baixo)
-            pa.press('down', presses=1) # (AJUSTE AQUI)
+            pa.press('down', presses=1) 
             
             
         elif tipo == "33":
             pa.write("33")
-            
-            # ATENÇÃO: AJUSTE O NÚMERO DE 'presses'
-            pa.press('down', presses=2) # (AJUSTE AQUI)
+            pa.press('down', presses=2) 
             
             
         elif tipo == "44":
             pa.write("44")
-            
-            # ATENÇÃO: AJUSTE O NÚMERO DE 'presses'
-            pa.press('down', presses=3) # (AJUSTE AQUI)
+            pa.press('down', presses=3) 
             
             
         elif tipo == "55":
             pa.write("55")
-            
-            # ATENÇÃO: AJUSTE O NÚMERO DE 'presses'
-            pa.press('down', presses=4) # (AJUSTE AQUI)
+            pa.press('down', presses=4) 
             
             
         else:
-            # Para "11", "17" e outros que funcionavam
             pa.write(tipo, interval=0.1)
 
         # Move para o próximo campo (o dropdown 'Status')
@@ -308,18 +289,16 @@ try:
 
         pa.press('tab', presses=2)
         
-
         # Inserir Histórico
         pa.click(x= 949, y= 675)
         pyperclip.copy(historico); pa.hotkey('ctrl', 'v');
       
-
         # Ação Final
         pa.press ("tab")
         pa.moveTo(x= 1248, y= 801); pa.click(x= 1248, y= 801) #Botão de confirmar
         time.sleep(3)
 
-        # --- BLOCO DE MARCAÇÃO E SALVAMENTO (VALIDAÇÃO) ---
+        # --- BLOCO DE MARCAÇÃO E SALVAMENTO  ---
         try:
             # 1. Marca a linha no DATAFRAME SINCRONIZADO usando a ChaveUnica
             dados_sincronizados.loc[dados_sincronizados['ChaveUnica'] == chave_unica_do_registro, 'PROCESSADO'] = 'SIM'
@@ -352,6 +331,7 @@ except requests.exceptions.ConnectionError as errc: # <-- ADICIONE ESTE BLOCO
 except Exception as e:
     print(f"\nERRO INESPERADO: O script foi interrompido. Detalhe: {e}")
     sys.exit()
+
 
 
 
